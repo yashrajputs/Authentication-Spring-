@@ -85,13 +85,56 @@ Or set environment variables:
 - `JWT_ACCESS_TTL_SECONDS`: Access token TTL (default: 3600)
 - `JWT_REFRESH_TTL_SECONDS`: Refresh token TTL (default: 86400)
 
-### 5. Build the Project
+### 5. OAuth2 Configuration (Google & GitHub)
+
+Configure OAuth2 clients in `src/main/resources/application-dev.yml` or via environment variables.
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:test-client_id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:test-client-secret}
+            scope:
+              - email
+              - profile
+              - openid
+          github:
+            client-id: ${GITHUB_CLIENT_ID:test-client_id}
+            client-secret: ${GITHUB_CLIENT_SECRET:test-client-secret}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - user:email
+              - read:user
+```
+
+Or set environment variables:
+
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
+
+Front‑end redirect URLs after successful/failed OAuth2 login are configured in `application-dev.yml`:
+
+```yaml
+app:
+  auth:
+    frontend:
+      success.redirect: http://localhost:5173/auth/success
+      faliure.redirect: http://localhost:5173/auth/failure
+```
+
+The `OAuth2SuccessHandler` uses `success.redirect` to send the browser back to your front‑end after Google/GitHub login, setting the refresh token cookie on the response.
+
+### 6. Build the Project
 
 ```bash
 mvn clean install
 ```
 
-### 6. Run the Application
+### 7. Run the Application
 
 ```bash
 mvn spring-boot:run
