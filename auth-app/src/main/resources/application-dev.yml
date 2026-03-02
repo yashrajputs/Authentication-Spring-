@@ -25,6 +25,27 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
         format_sql: true
+  security:
+    #OAuth2 config
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:test-client_id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:test-client-secret}
+            scope:
+              - email
+              - profile
+              - openid
+          github:
+            client-id: ${GITHUB_CLIENT_ID:test-client_id}
+            client-secret: ${GITHUB_CLIENT_SECRET:test-client-secret}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - user:email
+              - read:user
+
+
 logging:
   level:
     org.springframework.security: DEBUG
@@ -40,3 +61,13 @@ security:
     cookie-secure: ${JWT_COOKIE_SECURE:true}
     cookie-http-only: ${JWT_COOKIE_HTTP_ONLY:true}
     cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
+    cookie-domain: ${JWT_COOKIE_DOMAIN:.localhost}
+
+app:
+  auth:
+    frontend:
+      success.redirect: http://localhost:5173/auth/success
+      faliure.redirect: http://localhost:5173/auth/failure
+
+
+
