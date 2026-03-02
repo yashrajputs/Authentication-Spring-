@@ -5,6 +5,8 @@ A secure, production-ready authentication and authorization system built with Sp
 ## 🚀 Features
 
 - **JWT Authentication**: Secure token-based authentication with access tokens
+- **Refresh Tokens with Rotation**: Long‑lived refresh tokens stored and rotated securely
+- **HTTP‑Only Cookie Support**: Refresh tokens can be stored in HTTP‑only, `Secure` cookies via `CookieService`
 - **User Registration & Login**: Complete user registration and authentication flow
 - **Role-Based Access Control (RBAC)**: Multi-role support with fine-grained permissions
 - **User Management**: Full CRUD operations for user management
@@ -135,7 +137,7 @@ Content-Type: application/json
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "expiresIn": 3600,
   "user": {
     "id": "uuid",
@@ -145,6 +147,49 @@ Content-Type: application/json
   }
 }
 ```
+
+On successful login, a refresh token is also attached as an HTTP‑only cookie (by default named `refreshToken`), and `Cache-Control: no-store` headers are added.
+
+#### Refresh Access Token
+```http
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." // optional when cookie/header is used
+}
+```
+
+The refresh token can be provided in multiple ways (checked in this order):
+
+- **HTTP‑only cookie**: The refresh token cookie set during login/previous refresh
+- **Request body**: `{"refreshToken": "..."}`
+- **Header**: `X-Refresh-Token: <token>`
+- **Authorization header**: `Authorization: Bearer <refresh-token>` (only if the token is a refresh token)
+
+**Response:**
+```json
+{
+  "accessToken": "new-access-token",
+  "refreshToken": "new-refresh-token",
+  "expiresIn": 3600,
+  "user": {
+    "id": "uuid",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "roles": [...]
+  }
+}
+```
+
+The old refresh token is revoked and replaced with a new one (refresh token rotation). The new refresh token is again attached as an HTTP‑only cookie.
+
+#### Logout
+```http
+POST /api/v1/auth/logout
+```
+
+If a valid refresh token is found (cookie/body/header), it is revoked in the database, the refresh cookie is cleared, cache headers are set to `no-store`, and the Spring Security context is cleared. The endpoint returns HTTP `204 No Content` on success.
 
 ### User Management Endpoints
 
