@@ -55,7 +55,7 @@ security:
   jwt:
     secret: ${JWT_SECRET:QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB}
     issuer: ${JWT_ISSUER:api.substring.com}
-    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3600}
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:50}
     refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
     refresh-token-cookie-name: ${JWT_REFRESH_COOKIE_NAME:refreshToken}
     cookie-secure: ${JWT_COOKIE_SECURE:true}
@@ -64,10 +64,12 @@ security:
     cookie-domain: ${JWT_COOKIE_DOMAIN:.localhost}
 
 app:
+  cors:
+    front-end-url: http://localhost:5173
   auth:
     frontend:
-      success.redirect: http://localhost:5173/auth/success
-      faliure.redirect: http://localhost:5173/auth/failure
+      success.redirect: http://localhost:5173/oauth/success
+      faliure.redirect: http://localhost:5173/oauth/failure
 
 
 

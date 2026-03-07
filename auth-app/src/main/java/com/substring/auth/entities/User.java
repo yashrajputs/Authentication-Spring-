@@ -28,9 +28,13 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-      List<SimpleGrantedAuthority> authorities =  roles.stream().map(role-> new SimpleGrantedAuthority(role.getName())).toList();
-
-        return authorities;
+        // Safeguard against a null roles collection to avoid NPEs
+        if (roles == null) {
+            return List.of();
+        }
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .toList();
     }
 
     @Override
@@ -72,10 +76,10 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles" ,
-    joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles= new HashSet<>();
-
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
     @PrePersist
     protected  void onCreate(){
         Instant now= Instant.now();

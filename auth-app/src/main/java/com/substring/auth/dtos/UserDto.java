@@ -2,8 +2,6 @@ package com.substring.auth.dtos;
 
 
 import com.substring.auth.entities.Provider;
-import com.substring.auth.entities.Role;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
@@ -24,10 +22,19 @@ public class UserDto {
     private String name;
     private String password;
     private String image;
-    private boolean enable=true;
+    /**
+     * Nullable to avoid JSON parsing failures when client sends `null`.
+     * If omitted, defaults to true.
+     */
+    @Builder.Default
+    private Boolean enable = true;
+    @Builder.Default
     private Instant createdAt = Instant.now();
+    @Builder.Default
     private Instant updatedAt = Instant.now();
+    @Builder.Default
     private Provider provider = Provider.LOCAL;
+    @Builder.Default
     private Set<RoleDto> roles= new HashSet<>();
 
 }
